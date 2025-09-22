@@ -4,7 +4,7 @@
   "description": "Scaffold React apps with Redux, Context, Router, Tailwind, Axios in JS or TS",
   "license": "ISC",
   "author": "Mahesh Uike",
-  "type": "commonjs",
+  "type": "module",
   "bin": {
     "react-install-full": "bin/react-install-full.js"
   },
