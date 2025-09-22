@@ -1,8 +1,10 @@
+// templates-js.js
+
 function getTemplates(cfg = {}) {
   const files = {};
 
   // ---------------- PUBLIC FILES ----------------
-  files['public/index.html'] = `<!DOCTYPE html>
+  files["public/index.html"] = `<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -18,7 +20,7 @@ function getTemplates(cfg = {}) {
   </body>
 </html>`;
 
-  files['public/manifest.json'] = `{
+  files["public/manifest.json"] = `{
   "short_name": "App",
   "name": "React App",
   "icons": [{
@@ -33,13 +35,21 @@ function getTemplates(cfg = {}) {
 }`;
 
   // ---------------- ENTRYPOINT ----------------
-  files['src/index.js'] = `
+  files["src/index.js"] = `
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 import App from './App';
-${cfg.includeRedux ? "import { Provider } from 'react-redux';\nimport { store } from './store';" : ""}
-${cfg.includeContext ? "import { ThemeProvider } from './context/ThemeContext';\nimport { NotificationProvider } from './context/NotificationContext';" : ""}
+${
+  cfg.includeRedux
+    ? "import { Provider } from 'react-redux';\nimport { store } from './store';"
+    : ""
+}
+${
+  cfg.includeContext
+    ? "import { ThemeProvider } from './context/ThemeContext';\nimport { NotificationProvider } from './context/NotificationContext';"
+    : ""
+}
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
@@ -76,13 +86,17 @@ root.render(
         ${cfg.includeContext ? "<NotificationList />" : ""}
       </div>`;
 
-  files['src/App.js'] = `
+  files["src/App.js"] = `
 import React from 'react';
 ${routerImports}
 import './styles/App.css';
 import Home from './components/Home';
 import Navbar from './components/Navbar';
-${cfg.includeContext ? "import NotificationList from './components/common/NotificationList';" : ""}
+${
+  cfg.includeContext
+    ? "import NotificationList from './components/common/NotificationList';"
+    : ""
+}
 ${aboutComponent}
 
 export default function App(){
@@ -96,7 +110,7 @@ html,body,#root{height:100%}
 body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}
 `;
 
-  files['src/styles/index.css'] = cfg.includeTailwind
+  files["src/styles/index.css"] = cfg.includeTailwind
     ? `@tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -104,13 +118,13 @@ body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,
 ${baseCss}`
     : baseCss;
 
-  files['src/styles/App.css'] = `.App{text-align:left}
+  files["src/styles/App.css"] = `.App{text-align:left}
 button:hover{opacity:.9;transition:opacity .2s ease}
 `;
 
   // ---------------- CONTEXT ----------------
   if (cfg.includeContext) {
-    files['src/context/ThemeContext.js'] = `
+    files["src/context/ThemeContext.js"] = `
 import React, {createContext,useContext,useReducer} from 'react';
 const ThemeContext = createContext();
 const initial = { theme: 'light' };
@@ -122,7 +136,7 @@ export function ThemeProvider({children}){const [state,dispatch]=useReducer(redu
 export function useTheme(){const c=useContext(ThemeContext); if(!c) throw new Error('useTheme inside provider'); return c;}
 `;
 
-    files['src/context/NotificationContext.js'] = `
+    files["src/context/NotificationContext.js"] = `
 import React,{createContext,useContext,useReducer} from 'react';
 const C = createContext();
 const R = (s,a)=>{switch(a.type){case'ADD':return {...s,list:[a.payload,...s.list].slice(0,5)};case'REMOVE':return {...s,list:s.list.filter(n=>n.id!==a.payload)};case'CLEAR':return {...s,list:[]};default:return s}};
@@ -133,7 +147,7 @@ export function NotificationProvider({children}){const [state,dispatch]=useReduc
 export const useNotification=()=>{const c=useContext(C); if(!c) throw new Error('useNotification inside provider'); return c;};
 `;
 
-    files['src/components/common/NotificationList.js'] = `
+    files["src/components/common/NotificationList.js"] = `
 import React from 'react';
 import { useNotification } from '../../context/NotificationContext';
 export default function NotificationList(){
@@ -153,13 +167,13 @@ export default function NotificationList(){
 
   // ---------------- REDUX ----------------
   if (cfg.includeRedux) {
-    files['src/store/index.js'] = `
+    files["src/store/index.js"] = `
 import { configureStore } from '@reduxjs/toolkit';
 import counter from './slices/counterSlice';
 export const store = configureStore({ reducer: { counter }});
 `;
 
-    files['src/store/slices/counterSlice.js'] = `
+    files["src/store/slices/counterSlice.js"] = `
 import { createSlice } from '@reduxjs/toolkit';
 const slice = createSlice({
   name:'counter', initialState:{value:0},
@@ -169,7 +183,7 @@ export const { inc, dec, add } = slice.actions;
 export default slice.reducer;
 `;
 
-    files['src/hooks/useCounter.js'] = `
+    files["src/hooks/useCounter.js"] = `
 import { useDispatch, useSelector } from 'react-redux';
 import { inc, dec, add } from '../store/slices/counterSlice';
 export function useCounter(){
@@ -181,10 +195,18 @@ export function useCounter(){
   }
 
   // ---------------- COMPONENTS ----------------
-  files['src/components/Navbar.js'] = `
+  files["src/components/Navbar.js"] = `
 import React from 'react';
-${cfg.includeRouter ? "import { Link, useLocation } from 'react-router-dom';" : ""}
-${cfg.includeContext ? "import { useTheme } from '../context/ThemeContext';" : ""}
+${
+  cfg.includeRouter
+    ? "import { Link, useLocation } from 'react-router-dom';"
+    : ""
+}
+${
+  cfg.includeContext
+    ? "import { useTheme } from '../context/ThemeContext';"
+    : ""
+}
 
 export default function Navbar(){
   ${cfg.includeRouter ? "const location = useLocation();" : ""}
@@ -195,37 +217,61 @@ export default function Navbar(){
     <nav style={nav}>
       <div style={{display:'flex',alignItems:'center',gap:12}}>
         <strong>React Starter</strong>
-        ${cfg.includeRouter ? `<Link to="/" style={link}>Home</Link><Link to="/about" style={link}>About</Link>` : ``}
+        ${
+          cfg.includeRouter
+            ? `<Link to="/" style={link}>Home</Link><Link to="/about" style={link}>About</Link>`
+            : ``
+        }
       </div>
       <div>
-        ${cfg.includeContext ? `<button onClick={toggle} style={{background:'#333',color:'#fff',border:'1px solid #444',padding:'6px 10px',borderRadius:6}}>
-          Toggle Theme ({'${'}theme{'}'})
-        </button>` : ``}
+        ${
+          cfg.includeContext
+            ? `<button onClick={toggle} style={{background:'#333',color:'#fff',border:'1px solid #444',padding:'6px 10px',borderRadius:6}}>
+          Toggle Theme ({theme})
+        </button>`
+            : ``
+        }
       </div>
     </nav>
   );
 }
 `;
 
-  files['src/components/Home.js'] = `
+  files["src/components/Home.js"] = `
 import React from 'react';
 ${cfg.includeRedux ? "import { useCounter } from '../hooks/useCounter';" : ""}
-${cfg.includeContext ? "import { useNotification } from '../context/NotificationContext';" : ""}
+${
+  cfg.includeContext
+    ? "import { useNotification } from '../context/NotificationContext';"
+    : ""
+}
 ${cfg.includeAxios ? "import axios from 'axios';" : ""}
 
 export default function Home(){
   ${cfg.includeRedux ? "const { value, inc, dec, add } = useCounter();" : ""}
   ${cfg.includeContext ? "const { add: notify } = useNotification();" : ""}
-  ${cfg.includeAxios ? "async function testCall(){ try{ await axios.get('https://httpbin.org/get'); " +
-    (cfg.includeContext ? "notify('Axios GET ✓','success');" : "console.log('Axios GET ✓');") +
-    " }catch{ " + (cfg.includeContext ? "notify('Axios error','error');" : "console.error('Axios error');") + " } }" : ""}
+  ${
+    cfg.includeAxios
+      ? "async function testCall(){ try{ await axios.get('https://httpbin.org/get'); " +
+        (cfg.includeContext
+          ? "notify('Axios GET ✓','success');"
+          : "console.log('Axios GET ✓');") +
+        " }catch{ " +
+        (cfg.includeContext
+          ? "notify('Axios error','error');"
+          : "console.error('Axios error');") +
+        " } }"
+      : ""
+  }
 
   return (
     <div style={{padding:'2rem'}}>
       <h1>Welcome 👋</h1>
       <p>Your scaffolded app is ready.</p>
 
-      ${cfg.includeRedux ? `
+      ${
+        cfg.includeRedux
+          ? `
       <div style={{marginTop:16}}>
         <h3>Redux Counter</h3>
         <p>Value: <strong>{value}</strong></p>
@@ -234,42 +280,52 @@ export default function Home(){
           <button onClick={dec}>-1</button>
           <button onClick={()=>add(5)}>+5</button>
         </div>
-      </div>` : ""}
+      </div>`
+          : ""
+      }
 
-      ${cfg.includeContext ? `
+      ${
+        cfg.includeContext
+          ? `
       <div style={{marginTop:16}}>
         <h3>Notifications</h3>
         <button onClick={()=>notify('Hello from Notification!','info')}>Show Info</button>
-      </div>` : ""}
+      </div>`
+          : ""
+      }
 
-      ${cfg.includeAxios ? `
+      ${
+        cfg.includeAxios
+          ? `
       <div style={{marginTop:16}}>
         <h3>Axios Test</h3>
         <button onClick={testCall}>Call httpbin.org</button>
-      </div>` : ""}
+      </div>`
+          : ""
+      }
     </div>
   );
 }
 `;
 
   // ---------------- UTILS ----------------
-  files['src/utils/constants.ts'] = `
-export const API_BASE_URL: string = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
-export const ENVIRONMENT: string = process.env.REACT_APP_ENV || "development";
+  files["src/utils/constants.js"] = `
+export const API_BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:3001/api";
+export const ENVIRONMENT = process.env.REACT_APP_ENV || "development";
 `;
-  return files;
-}
 
-  // ---------------- ENV FILES ----------------
-  files['.env'] = `REACT_APP_API_URL=https://api.example.com
+  // ---------------- ENV & GITIGNORE ----------------
+  files[".env"] = `REACT_APP_API_URL=https://api.example.com
 REACT_APP_ENV=development
 `;
 
-  files['.gitignore'] = `node_modules
+  files[".gitignore"] = `node_modules
 .env
 dist
 build
 `;
 
+  return files;
+}
 
-module.exports = { getTemplates };
+export { getTemplates };

@@ -2,7 +2,7 @@
 
 import fs from "fs-extra";
 import path from "path";
-import { fileURLToPath } from "url";
+import { fileURLToPath, pathToFileURL } from "url";
 import { Command } from "commander";
 import chalk from "chalk";
 import inquirer from "inquirer";
@@ -41,6 +41,7 @@ async function createReactApp(projectName, options) {
       );
       process.exit(1);
     }
+
     const projectPath = path.resolve(projectName);
     if (fs.existsSync(projectPath)) {
       console.error(chalk.red(`❌ Folder "${projectName}" already exists.`));
@@ -57,7 +58,7 @@ async function createReactApp(projectName, options) {
       includeAxios: false,
     };
 
-    // Prompts
+    // Prompts if not skipped
     if (!options.yes) {
       const answers = await inquirer.prompt([
         {
@@ -108,23 +109,30 @@ async function createReactApp(projectName, options) {
     // Create project folder
     await fs.ensureDir(projectPath);
 
-    // Import templates dynamically (ESM way)
-    const templatesModule = await import(
-      path.join(__dirname, `templates-${config.lang}.js`)
-    );
+    // Import templates dynamically with file:// URL
+    const templatePath = path.join(__dirname, `templates-${config.lang}.js`);
+    const templatesModule = await import(pathToFileURL(templatePath).href);
+
+    if (!templatesModule.getTemplates) {
+      console.error(
+        chalk.red(`❌ getTemplates not exported in ${templatePath}`)
+      );
+      process.exit(1);
+    }
+
     const files = templatesModule.getTemplates(config);
 
-    // package.json
+    // Write package.json
     await writePackageJson(projectPath, projectName, config);
 
-    // Write files
+    // Write scaffolded files
     for (const [rel, content] of Object.entries(files)) {
       const full = path.join(projectPath, rel);
       await fs.ensureDir(path.dirname(full));
       await fs.writeFile(full, content);
     }
 
-    // Install deps
+    // Install dependencies
     console.log(chalk.yellow("\n📦 Installing dependencies…\n"));
     execSync("npm install", { cwd: projectPath, stdio: "inherit" });
 
@@ -158,7 +166,6 @@ async function writePackageJson(root, appName, cfg) {
     name: appName,
     version: "0.1.0",
     private: true,
-    type: "commonjs",
     dependencies: {
       react: "^18.2.0",
       "react-dom": "^18.2.0",

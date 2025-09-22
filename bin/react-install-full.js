@@ -1,2 +1,3 @@
 #!/usr/bin/env node
-require('../src/create-app');
+
+import "../src/create-app.js";
